@@ -14,11 +14,15 @@
     <ApplicationDisplayVersion>3.2.0</ApplicationDisplayVersion>
     <RuntimeIdentifiers>android-arm64</RuntimeIdentifiers>
   </PropertyGroup>
-  <!-- Community translation builds have their own package and never touch official app data. -->
+  <!-- Community builds are sideloaded. Embed all managed assemblies, as in the
+       diagnostic build: Debug fast deployment otherwise looks for assemblies that
+       an IDE would have pushed into app-private storage and exits after the splash. -->
   <PropertyGroup Condition="'$(CommunityTranslation)' == 'true'">
     <ApplicationId>org.pkforge.app.es</ApplicationId>
     <ApplicationTitle>PKForge Español</ApplicationTitle>
     <DefineConstants>$(DefineConstants);COMMUNITY_TRANSLATION</DefineConstants>
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+    <AndroidStoreUncompressedFileExtensions>.so;$(AndroidStoreUncompressedFileExtensions)</AndroidStoreUncompressedFileExtensions>
   </PropertyGroup>
   <PropertyGroup Condition="'$(DiagnosticBuild)' == 'true'">
     <!-- Diagnostic builds install beside production and cannot overwrite its app-private data. -->
