@@ -1,0 +1,54 @@
+name: PKForge Spanish APK
+
+on:
+  push:
+    branches:
+      - traduccion-es
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  spanish-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install MAUI Android workload
+        run: dotnet workload install maui-android
+
+      - name: Restore dependencies
+        run: dotnet restore PKForge.sln
+
+      - name: Build standalone Spanish APK
+        run: |
+          dotnet build src/PKForge.App/PKForge.App.csproj \
+            --no-restore --configuration Debug \
+            -f net10.0-android \
+            -p:CommunityTranslation=true \
+            -p:AndroidKeyStore=false
+
+      - name: Locate APK
+        run: |
+          find src/PKForge.App/bin -type f -name '*.apk' -print
+          apk=$(find src/PKForge.App/bin -type f -name '*-Signed.apk' | head -1)
+          if [ -z "$apk" ]; then
+            echo "No signed APK found" >&2
+            exit 1
+          fi
+          mkdir -p output
+          cp "$apk" output/PKForge-ES-prueba.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PKForge-ES-APK
+          path: output/PKForge-ES-prueba.apk
+          retention-days: 7
