@@ -1124,6 +1124,12 @@ public sealed partial class HomePage : ContentPage, IPadHandler
     /// <summary>Release checks: automatic failures stay quiet, manual failures explain themselves.</summary>
     private async Task CheckForUpdateAsync(bool automatic)
     {
+#if COMMUNITY_TRANSLATION
+        // A community build has a different Android package/signing key.
+        // Never offer the official APK as an in-place update for this package.
+        await Task.CompletedTask;
+        return;
+#else
         var service = IPlatformApplication.Current?.Services.GetService<AppUpdateService>();
         if (service is null) return;
 
@@ -1167,6 +1173,7 @@ public sealed partial class HomePage : ContentPage, IPadHandler
                 _viewModel.Status = $"I won't remind you about version {update.Version} again.";
                 break;
         }
+#endif
     }
 
     private async Task InstallUpdateAsync(AvailableAppUpdate update)
