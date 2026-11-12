@@ -21,9 +21,58 @@ public static class AppLanguage
         return true;
     }
 
-    /// <summary>Translate display-only text; never pass its result into business logic.</summary>
-    public static string T(string text) =>
-        IsSpanish && Spanish.TryGetValue(text, out var translation) ? translation : text;
+    /// <summary>Translate display text only. Keep internal commands in English.</summary>
+    public static string T(string? text)
+    {
+        if (text is null) return string.Empty;
+        if (!IsSpanish) return text;
+        if (Spanish.TryGetValue(text, out var translation)) return translation;
+
+        // Numeric labels have fixed templates; never change file paths or game identifiers.
+        if (TryCount(text, "Hidden saves (", out var hidden))
+            return "Partidas ocultas (" + hidden + ")";
+        if (TryCount(text, "Folders to link again (", out var relink))
+            return "Carpetas para volver a vincular (" + relink + ")";
+        if (text.StartsWith("Emulators, files, ", StringComparison.Ordinal)
+            && text.Contains(" hidden ", StringComparison.Ordinal))
+        {
+            var value = text["Emulators, files, ".Length..];
+            var split = value.IndexOf(' ');
+            if (split > 0 && int.TryParse(value[..split], out var count)
+                && value[(split + 1)..] is "hidden save" or "hidden saves")
+                return "Emuladores, archivos y " + count + " "
+                    + (count == 1 ? "partida oculta" : "partidas ocultas");
+        }
+
+        if (text.StartsWith("Filter · ", StringComparison.Ordinal))
+            return "Filtro · " + T(text["Filter · ".Length..]);
+        if (text.StartsWith("Color scheme: ", StringComparison.Ordinal))
+            return "Tema de color: " + T(text["Color scheme: ".Length..]);
+        if (text.StartsWith("Box background: ", StringComparison.Ordinal))
+            return "Fondo de las cajas: " + T(text["Box background: ".Length..]);
+        if (text.StartsWith("Animations: ", StringComparison.Ordinal))
+            return "Animaciones: " + T(text["Animations: ".Length..]);
+        if (text.StartsWith("UI scale: ", StringComparison.Ordinal))
+            return "Escala de interfaz: " + text["UI scale: ".Length..];
+        if (text.StartsWith("Sprite packs (full pack ", StringComparison.Ordinal))
+            return "Paquetes de sprites (paquete completo " + text["Sprite packs (full pack ".Length..];
+        if (text.StartsWith("Download the sprite pack (", StringComparison.Ordinal))
+            return "Descargar paquete de sprites (" + text["Download the sprite pack (".Length..];
+        if (text.StartsWith("Link ", StringComparison.Ordinal))
+            return "Vincular " + text["Link ".Length..];
+        if (text.StartsWith("Unlink ", StringComparison.Ordinal))
+            return "Desvincular " + text["Unlink ".Length..];
+        return text;
+    }
+
+    private static bool TryCount(string text, string prefix, out int number)
+    {
+        number = 0;
+        return text.StartsWith(prefix, StringComparison.Ordinal)
+            && text.EndsWith(")", StringComparison.Ordinal)
+            && int.TryParse(text.AsSpan(prefix.Length, text.Length - prefix.Length - 1), out number)
+            && number >= 0;
+    }
 
     private static readonly Dictionary<string, string> Spanish = new(StringComparer.Ordinal)
     {
@@ -606,5 +655,13 @@ public static class AppLanguage
         ["The offline legalizer is finding a real, legal way for this Pokémon to exist."] = "El legalizador sin conexión busca una combinación de datos válida para este Pokémon.",
         ["Paste the set exactly as exported from Pokémon Showdown."] = "Pega el conjunto tal como lo exportó Pokémon Showdown.",
         ["The offline legalizer is building a legal Pokémon from your set."] = "El legalizador sin conexión está creando un Pokémon legal a partir de tu conjunto.",
+        ["Community translation updates"] = "Actualizaciones de la traducción comunitaria",
+        ["This edition is installed separately from PKForge. It cannot install official APK updates. Download a newer Spanish build from your GitHub Actions page."] = "Esta edición se instala por separado de PKForge y no puede instalar sus actualizaciones oficiales. Descarga una nueva versión en español desde la sección Actions de tu repositorio de GitHub.",
+        ["Current language"] = "Idioma actual",
+        ["Full"] = "Completas",
+        ["Reduced"] = "Reducidas",
+        ["Off"] = "Desactivadas",
+        ["Blue"] = "Azul",
+        ["Default"] = "Predeterminado",
     };
 }

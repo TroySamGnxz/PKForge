@@ -43,7 +43,7 @@ public sealed partial class HomePage : ContentPage, IPadHandler
             TextColor = UiTokens.Ink0, VerticalOptions = LayoutOptions.Center,
         };
         filterCaption.SetBinding(Label.TextProperty, new Binding("Caption",
-            source: _viewModel.Filter, stringFormat: "Filter · {0}"));
+            source: _viewModel.Filter, converter: new LocalizedFilterCaption()));
         // A menu button (the summary's resting tab), not an outlined pill.
         var filterChip = Kit.Tab(AppLanguage.T("Filter"));
         filterChip.Content = filterCaption;
@@ -157,6 +157,16 @@ public sealed partial class HomePage : ContentPage, IPadHandler
     /// <summary>"Could not connect. The file is gone…" under a "Save could not open" title: the reason alone.</summary>
     private static string AfterFirstSentence(string text) =>
         text.IndexOf(". ", StringComparison.Ordinal) is var cut and > 0 && cut + 2 < text.Length ? text[(cut + 2)..] : text;
+
+    /// <summary>Translate only the filter's displayed caption, never the stored value.</summary>
+    private sealed class LocalizedFilterCaption : IValueConverter
+    {
+        public object Convert(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
+            => AppLanguage.T("Filter · " + (value?.ToString() ?? ""));
+
+        public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
+            => throw new NotSupportedException();
+    }
 
     private Grid _hostGrid = null!;
 
@@ -717,8 +727,8 @@ public sealed partial class HomePage : ContentPage, IPadHandler
         // cannot change any command identifiers or game/save data.
         var choice = await PadMenu.ShowAsync(_hostGrid, "Language / Idioma",
             "Choose the language for menus, help and warnings. Untranslated text will remain in English.",
-            new PadOption("English", IconPath: "info", Detail: "Original language"),
-            new PadOption("Español", IconPath: "info", Detail: "Spanish (in progress)"),
+            new PadOption("English", IconPath: "info", Detail: AppLanguage.IsSpanish ? "Original language" : "Current language"),
+            new PadOption("Español", IconPath: "info", Detail: AppLanguage.IsSpanish ? "Current language" : "Spanish (in progress)"),
             new PadOption("Cancel", IconPath: "close"));
         var next = choice switch
         {
@@ -1127,7 +1137,10 @@ public sealed partial class HomePage : ContentPage, IPadHandler
 #if COMMUNITY_TRANSLATION
         // A community build has a different Android package/signing key.
         // Never offer the official APK as an in-place update for this package.
-        await Task.CompletedTask;
+        if (!automatic)
+            await PadMenu.ShowAsync(_hostGrid, "Community translation updates",
+                "This edition is installed separately from PKForge. It cannot install official APK updates. Download a newer Spanish build from your GitHub Actions page.",
+                "OK");
         return;
 #else
         var service = IPlatformApplication.Current?.Services.GetService<AppUpdateService>();

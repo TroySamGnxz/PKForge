@@ -46,6 +46,8 @@ jobs:
           fi
           mkdir -p output
           cp "$apk" output/PKForge-ES-prueba.apk
+          unzip -t output/PKForge-ES-prueba.apk >/dev/null
+          test "$(stat -c %s output/PKForge-ES-prueba.apk)" -gt 1000000
 
       - uses: actions/upload-artifact@v4
         with:
