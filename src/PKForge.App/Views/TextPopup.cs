@@ -1,4 +1,5 @@
 using PKForge.App.Theme;
+using PKForge.App.Services;
 
 namespace PKForge.App.Views;
 
@@ -17,7 +18,7 @@ public static class TextPopup
             FontFamily = DsChrome.PixelFont,
             TextColor = UiTokens.Ink0,
             BackgroundColor = UiTokens.ShellPress,
-            Placeholder = hint,
+            Placeholder = AppLanguage.T(hint),
             PlaceholderColor = UiTokens.Ink1,
             IsSpellCheckEnabled = false,
             IsTextPredictionEnabled = false,
@@ -115,7 +116,7 @@ public static class TextPopup
             Children =
             {
                 Kit.HeaderBar(title),
-                new Label { Text = hint, TextColor = UiTokens.InkSoft, FontFamily = DsChrome.PixelFont, FontSize = UiTokens.TextSmall, LineBreakMode = LineBreakMode.WordWrap },
+                new Label { Text = AppLanguage.T(hint), TextColor = UiTokens.InkSoft, FontFamily = DsChrome.PixelFont, FontSize = UiTokens.TextSmall, LineBreakMode = LineBreakMode.WordWrap },
                 editor,
                 new HorizontalStackLayout { Spacing = 8, HorizontalOptions = LayoutOptions.End, Children = { cancel, ok } },
             },

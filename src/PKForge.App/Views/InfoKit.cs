@@ -1,4 +1,5 @@
 using PKForge.App.Theme;
+using PKForge.App.Services;
 using PKForge.Domain;
 using SkiaSharp;
 using SkiaSharp.Views.Maui.Controls;
@@ -150,7 +151,7 @@ public static class InfoKit
     /// <summary>Card heading: pixel voice, 14 dp, one line.</summary>
     public static Label Heading(string? text = null) => new()
     {
-        Text = text,
+        Text = text is null ? null : AppLanguage.T(text),
         FontFamily = DsChrome.PixelFont,
         FontSize = UiTokens.TextLabel,
         TextColor = UiTokens.Ink0,
@@ -160,7 +161,7 @@ public static class InfoKit
     /// <summary>A quiet one-line fact under a name ("Pow 90 · Acc 100 · PP 15").</summary>
     public static Label DetailLine(string? text = null, int maxLines = 1) => new()
     {
-        Text = text,
+        Text = text is null ? null : AppLanguage.T(text),
         FontSize = UiTokens.TextSmall,
         TextColor = UiTokens.InkSoft,
         MaxLines = maxLines,
@@ -171,7 +172,7 @@ public static class InfoKit
     /// <summary>Body prose inside a card (effects, descriptions): wraps, never truncates.</summary>
     public static Label Body(string? text = null) => new()
     {
-        Text = text,
+        Text = text is null ? null : AppLanguage.T(text),
         FontSize = UiTokens.TextSmall,
         TextColor = UiTokens.Ink0,
         LineBreakMode = LineBreakMode.WordWrap,
@@ -180,7 +181,7 @@ public static class InfoKit
     /// <summary>A warning/notice line in the card's accent (good = green, bad = red, info = blue).</summary>
     public static Label Note(string? text = null, NoteTone tone = NoteTone.Info) => new()
     {
-        Text = text,
+        Text = text is null ? null : AppLanguage.T(text),
         FontSize = UiTokens.TextSmall,
         TextColor = ToneColor(tone),
         LineBreakMode = LineBreakMode.WordWrap,

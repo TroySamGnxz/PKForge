@@ -1,4 +1,5 @@
 using PKForge.App.Theme;
+using PKForge.App.Services;
 
 namespace PKForge.App.Views;
 
@@ -27,7 +28,7 @@ public sealed class LoadingOverlay
             FontFamily = DsChrome.PixelFont,
             FontSize = 14,
             HorizontalTextAlignment = TextAlignment.Center,
-            Text = "Starting…",
+            Text = AppLanguage.T("Starting…"),
         };
         _bar = new ProgressBar { ProgressColor = UiTokens.Green };
 
@@ -41,7 +42,7 @@ public sealed class LoadingOverlay
             Children =
             {
                 Kit.HeaderBar(title),
-                new Label { Text = subtitle, TextColor = UiTokens.InkSoft, FontSize = UiTokens.TextBody, HorizontalTextAlignment = TextAlignment.Center, LineBreakMode = LineBreakMode.WordWrap },
+                new Label { Text = AppLanguage.T(subtitle), TextColor = UiTokens.InkSoft, FontSize = UiTokens.TextBody, HorizontalTextAlignment = TextAlignment.Center, LineBreakMode = LineBreakMode.WordWrap },
                 Kit.WalkerStrip(34),
                 _bar,
                 _progress,
@@ -64,7 +65,7 @@ public sealed class LoadingOverlay
     /// <summary>Free-form progress ("Downloading 12 / 240 MB") with a 0-1 bar.</summary>
     public void Report(string text, double fraction) => MainThread.BeginInvokeOnMainThread(() =>
     {
-        _progress.Text = text;
+        _progress.Text = AppLanguage.T(text);
         _bar.Progress = Math.Clamp(fraction, 0, 1);
     });
 

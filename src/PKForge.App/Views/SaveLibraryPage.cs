@@ -158,7 +158,7 @@ public sealed class SaveLibraryPage : ContentPage, IPadHandler
         };
         Grid.SetRow(ficheButtons, 1);
         ficheButtons.SetBinding(IsVisibleProperty, new Binding(nameof(IsVisible), source: _fiche));
-        _ficheEmpty.Text = "Pick a save to see its party, its Pokédex and what you can do with it.";
+        _ficheEmpty.Text = AppLanguage.T("Pick a save to see its party, its Pokédex and what you can do with it.");
         _ficheEmpty.VerticalOptions = LayoutOptions.Center;
         _ficheEmpty.HorizontalTextAlignment = TextAlignment.Center;
         var fichePanel = Kit.Well(new Grid { Children = { _ficheEmpty, ficheBody } }, padding: 14);

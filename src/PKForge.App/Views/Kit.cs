@@ -1,5 +1,6 @@
 using Microsoft.Maui.Controls.Shapes;
 using PKForge.App.Theme;
+using PKForge.App.Services;
 using PKForge.Chrome;
 using SkiaSharp;
 using SkiaSharp.Views.Maui;
@@ -408,7 +409,7 @@ public static class Kit
         var tone = primary ? signal ?? UiTokens.AccentNeutral : null;
         var button = new Button
         {
-            Text = Tidy(text),
+            Text = Tidy(AppLanguage.T(text)),
             FontFamily = DsChrome.PixelFont,
             BackgroundColor = tone ?? UiTokens.ButtonTop,
             BorderColor = primary ? UiTokens.Ink0.WithAlpha(0.7f) : tone is null ? UiTokens.ButtonEdge : UiTokens.Rim,
@@ -607,7 +608,7 @@ public static class Kit
             HorizontalOptions = LayoutOptions.Fill,
             Content = new Label
             {
-                Text = title,
+                Text = AppLanguage.T(title),
                 TextColor = UiTokens.Bright,
                 FontFamily = DsChrome.PixelFont,
                 FontSize = UiTokens.TextTitle + 1,

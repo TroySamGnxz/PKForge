@@ -197,7 +197,7 @@ public sealed class LivingDexAutopilotPage : IPadHandler
     {
         static View Line(string icon, string text, string tint = PksmIcons.Cyan)
         {
-            var copy = new Label { Text = text, TextColor = UiTokens.Ink0, FontFamily = DsChrome.PixelFont, FontSize = UiTokens.TextBody, LineBreakMode = LineBreakMode.WordWrap };
+            var copy = new Label { Text = AppLanguage.T(text), TextColor = UiTokens.Ink0, FontFamily = DsChrome.PixelFont, FontSize = UiTokens.TextBody, LineBreakMode = LineBreakMode.WordWrap };
             var line = new Grid
             {
                 ColumnDefinitions = [new(new GridLength(30)), new(GridLength.Star)],
@@ -210,7 +210,7 @@ public sealed class LivingDexAutopilotPage : IPadHandler
 
         static Label Head(string text) => new()
         {
-            Text = text, TextColor = UiTokens.IndigoInk, FontFamily = DsChrome.PixelFont, FontSize = UiTokens.TextTitle, Margin = new Thickness(0, 2, 0, 0),
+            Text = AppLanguage.T(text), TextColor = UiTokens.IndigoInk, FontFamily = DsChrome.PixelFont, FontSize = UiTokens.TextTitle, Margin = new Thickness(0, 2, 0, 0),
         };
 
         // One screen, two columns: what it does beside what it never does.
@@ -836,6 +836,8 @@ public sealed class LivingDexAutopilotPage : IPadHandler
                 _status.Text = "Press A to see the updated plan.";
                 break;
         }
+        _lead.Text = AppLanguage.T(_lead.Text);
+        _status.Text = AppLanguage.T(_status.Text);
     }
 
     private void RefreshDetail()
@@ -851,7 +853,7 @@ public sealed class LivingDexAutopilotPage : IPadHandler
             return;
         }
         var row = _rows[_cursor];
-        _detail.Text = row.Detail ?? row.Sub;
+        _detail.Text = AppLanguage.T(row.Detail ?? row.Sub);
         if (_stage == Stage.Destination) PublishShelfRoute(row.Key.StartsWith("dest:", StringComparison.Ordinal) ? row.Key[5..] : null);
         if (row.Step is { Kind: LivingDexStepKind.Guide } step) WarmGuideHint(step);
     }
@@ -946,7 +948,7 @@ public sealed class LivingDexAutopilotPage : IPadHandler
 
         if (_rows.Count == 0)
         {
-            PksmPaint.CenterText(c, _plan is null || _shelf is null ? "Planning…" : "Nothing to show.", info.Width / 2f, info.Height / 2f, font, Pksm.InkSoft, SKColors.Transparent, SKTextAlign.Center);
+            PksmPaint.CenterText(c, AppLanguage.T(_plan is null || _shelf is null ? "Planning…" : "Nothing to show."), info.Width / 2f, info.Height / 2f, font, Pksm.InkSoft, SKColors.Transparent, SKTextAlign.Center);
             return;
         }
 
@@ -976,8 +978,8 @@ public sealed class LivingDexAutopilotPage : IPadHandler
         {
             using var band = new SKPaint { Color = Pksm.PaperShade, IsAntialias = true };
             c.DrawRect(r, band);
-            PksmPaint.CenterText(c, row.Title, r.Left + 12 * unit, r.MidY - small.Size * 0.55f, font, Pksm.Indigo, SKColors.Transparent);
-            PksmPaint.CenterText(c, Fit(row.Sub, small, r.Width - 24 * unit), r.Left + 12 * unit, r.MidY + small.Size * 0.75f, small, Pksm.InkSoft, SKColors.Transparent);
+            PksmPaint.CenterText(c, AppLanguage.T(row.Title), r.Left + 12 * unit, r.MidY - small.Size * 0.55f, font, Pksm.Indigo, SKColors.Transparent);
+            PksmPaint.CenterText(c, Fit(AppLanguage.T(row.Sub), small, r.Width - 24 * unit), r.Left + 12 * unit, r.MidY + small.Size * 0.75f, small, Pksm.InkSoft, SKColors.Transparent);
             if (selected) PksmPaint.Selection(c, SKRect.Inflate(r, -2, -2));
             return;
         }
@@ -1027,12 +1029,12 @@ public sealed class LivingDexAutopilotPage : IPadHandler
         }
 
         var room = right - textX - pad;
-        PksmPaint.CenterText(c, Fit(row.Title, font, room), textX, r.MidY - small.Size * 0.62f, font, Pksm.Ink.WithAlpha(alpha), SKColors.Transparent);
+        PksmPaint.CenterText(c, Fit(AppLanguage.T(row.Title), font, room), textX, r.MidY - small.Size * 0.62f, font, Pksm.Ink.WithAlpha(alpha), SKColors.Transparent);
         var subY = r.MidY + small.Size * 0.78f;
         if (row.Route is { } route)
             DrawRoute(c, textX, subY, room, route, small, unit);
         else
-            PksmPaint.CenterText(c, Fit(row.Sub, small, room), textX, subY, small, row.SubColor.WithAlpha(alpha), SKColors.Transparent);
+            PksmPaint.CenterText(c, Fit(AppLanguage.T(row.Sub), small, room), textX, subY, small, row.SubColor.WithAlpha(alpha), SKColors.Transparent);
     }
 
     /// <summary>"[game] HeartGold · box 3 → [Bank] Bank · box 12": both ends with their cartridge art.</summary>
