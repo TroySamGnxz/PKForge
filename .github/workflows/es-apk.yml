@@ -46,7 +46,7 @@ jobs:
           fi
           mkdir -p output
           cp "$apk" output/PKForge-ES-prueba.apk
-          unzip -t output/PKForge-ES-prueba.apk >/dev/null
+          python3 -c 'import zipfile; p="output/PKForge-ES-prueba.apk"; z=zipfile.ZipFile(p); names=set(z.namelist()); assert {"AndroidManifest.xml","classes.dex","lib/arm64-v8a/libxamarin-app.so"}.issubset(names), "Missing Android APK components"; print("APK entries:", len(names))'
           test "$(stat -c %s output/PKForge-ES-prueba.apk)" -gt 1000000
 
       - uses: actions/upload-artifact@v4
