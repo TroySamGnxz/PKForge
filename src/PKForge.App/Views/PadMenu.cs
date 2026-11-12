@@ -66,22 +66,22 @@ public sealed class PadMenu : IPadHandler
     {
         var watch = System.Diagnostics.Stopwatch.StartNew();
         _host = host;
-        _title = title;
-        _message = message;
+        _title = AppLanguage.T(title);
+        _message = message is null ? null : AppLanguage.T(message);
         _options = options;
         _router = IPlatformApplication.Current?.Services.GetService<GamepadRouter>();
         // Columns by what the labels need, as before: short labels in a long list share rows.
-        var longest = options.Length == 0 ? 0 : options.Max(o => o.Label.Length);
+        var longest = options.Length == 0 ? 0 : options.Max(o => AppLanguage.T(o.Label).Length);
         _columns = options.Length switch
         {
             <= 4 => 1,
             <= 12 => longest > 24 ? 1 : 2,
             _ => longest > 16 ? 2 : 3,
         };
-        _lines = [.. options.Select(o => new PadMenuLine(o.Label, o.Detail, IconOf(o.IconPath), o.IconPath is null ? o.Glyph : null,
+        _lines = [.. options.Select(o => new PadMenuLine(AppLanguage.T(o.Label), o.Detail is null ? null : AppLanguage.T(o.Detail), IconOf(o.IconPath), o.IconPath is null ? o.Glyph : null,
             o.Accent is { } accent ? accent.ToSKColor() : null))];
         // B cancels a question, closes a message, and goes back from a menu: the hint says which.
-        _leave = options.Any(option => option.Label == "Cancel") ? "Cancel" : options.Length == 1 ? "Close" : "Back";
+        _leave = AppLanguage.T(options.Any(option => option.Label == "Cancel") ? "Cancel" : options.Length == 1 ? "Close" : "Back");
         _index = Math.Clamp(start, 0, Math.Max(0, options.Length - 1));
         _canvas.PaintSurface += PaintGuard.Wrap("PadMenu.OnPaint", OnPaint);
         _canvas.Touch += OnTouch;

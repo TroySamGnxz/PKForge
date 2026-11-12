@@ -33,7 +33,7 @@ public sealed class DialogueBox : IPadHandler
     private DialogueBox(Grid host, string[] lines)
     {
         _host = host;
-        _lines = lines.Length == 0 ? [""] : lines;
+        _lines = lines.Length == 0 ? [""] : lines.Select(AppLanguage.T).ToArray();
         _router = IPlatformApplication.Current?.Services.GetService<GamepadRouter>();
 
         _text = new Label

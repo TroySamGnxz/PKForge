@@ -71,7 +71,7 @@ internal sealed class StatusToast : Border
             NoticeTone.Problem => UiTokens.Bad,
             _ => EditorPaint.Cyan.ToMauiColor(),
         };
-        _text.Text = text;
+        _text.Text = Services.AppLanguage.T(text);
         _lamp.Color = accent;
         Stroke = accent;
         if (Parent is Grid host) RaiseIn(host);

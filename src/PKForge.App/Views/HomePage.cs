@@ -34,7 +34,7 @@ public sealed partial class HomePage : ContentPage, IPadHandler
         // GAMES section: the cartridge shelf (reused), labelled DS-style.
         var gamesLabel = new Label
         {
-            Text = "Games", FontFamily = DsChrome.PixelFont, FontSize = UiTokens.TextTitle,
+            Text = AppLanguage.T("Games"), FontFamily = DsChrome.PixelFont, FontSize = UiTokens.TextTitle,
             TextColor = UiTokens.Ink0, VerticalOptions = LayoutOptions.Center,
         };
         var filterCaption = new Label
@@ -45,7 +45,7 @@ public sealed partial class HomePage : ContentPage, IPadHandler
         filterCaption.SetBinding(Label.TextProperty, new Binding("Caption",
             source: _viewModel.Filter, stringFormat: "Filter · {0}"));
         // A menu button (the summary's resting tab), not an outlined pill.
-        var filterChip = Kit.Tab("Filter");
+        var filterChip = Kit.Tab(AppLanguage.T("Filter"));
         filterChip.Content = filterCaption;
         Kit.SetTab(filterChip, false);
         filterCaption.TextColor = UiTokens.Ink0;
@@ -87,12 +87,12 @@ public sealed partial class HomePage : ContentPage, IPadHandler
         // their top and bottom. The Thor has the room, so nothing changes there.
         _shelf.SizeChanged += (_, _) => FitShelfTiles(_shelf.Height);
         // The destinations as PKSM tiles with bundled pixel icons.
-        var bank = new DsCard("bank", "Bank") { Tapped = () => _ = PushAsync<BankPage>() };
-        var saves = new DsCard("sdcard", "Saves") { Tapped = () => _ = PushSavesAsync() };
-        var autopilot = new DsCard("pokedex", "Dex Autopilot") { Tapped = () => _ = OpenAutopilotAsync() };
+        var bank = new DsCard("bank", AppLanguage.T("Bank")) { Tapped = () => _ = PushAsync<BankPage>() };
+        var saves = new DsCard("sdcard", AppLanguage.T("Saves")) { Tapped = () => _ = PushSavesAsync() };
+        var autopilot = new DsCard("pokedex", AppLanguage.T("Dex Autopilot")) { Tapped = () => _ = OpenAutopilotAsync() };
         var park = new DsCard("park", "Poképark") { Tapped = () => _ = PushParkAsync() };
-        var events = new DsCard("events", "Events") { Tapped = () => _ = ShowEventsMenuAsync() };
-        var settings = new DsCard("settings", "Settings") { Tapped = () => _ = ShowSettingsAsync() };
+        var events = new DsCard("events", AppLanguage.T("Events")) { Tapped = () => _ = ShowEventsMenuAsync() };
+        var settings = new DsCard("settings", AppLanguage.T("Settings")) { Tapped = () => _ = ShowSettingsAsync() };
         _cards = [bank, saves, autopilot, park, events, settings];
         foreach (var card in _cards) BlockNativeFocus(card);
         var cards = new Grid
@@ -118,22 +118,22 @@ public sealed partial class HomePage : ContentPage, IPadHandler
         var bodyHost = new Grid { Children = { DsChrome.GridBackground(), body } };
 
         var footer = DsChrome.Footer(
-            ("A", "Open", () => OnPadButton(PadButton.A)),
+            ("A", AppLanguage.T("Open"), () => OnPadButton(PadButton.A)),
             // The cartridge identity menu (rename, color, which game): B on the pad, a hold by touch.
             ("B", "Edit game · hold", () =>
             {
                 if ((uint)_shelfIndex < (uint)_viewModel.Groups.Count) _ = ShowSaveMenuAsync(_viewModel.Groups[_shelfIndex]);
             }),
-            ("L", "Filter", () => _ = ShowFilterMenuAsync()),
-            ("Y", "Link", () => _ = ShowLinkMenuAsync()),
-            ("X", "File", () => _ = LinkFileAsync()),
-            ("+", "Settings", () => _ = ShowSettingsAsync()));
+            ("L", AppLanguage.T("Filter"), () => _ = ShowFilterMenuAsync()),
+            ("Y", AppLanguage.T("Link"), () => _ = ShowLinkMenuAsync()),
+            ("X", AppLanguage.T("File"), () => _ = LinkFileAsync()),
+            ("+", AppLanguage.T("Settings"), () => _ = ShowSettingsAsync()));
 
 
         var root = new Grid
         {
             RowDefinitions = [new(GridLength.Auto), new(GridLength.Auto), new(GridLength.Star), new(GridLength.Auto)],
-            Children = { DsChrome.TitleBar(), DsChrome.StatusStrip("PKForge", "Offline"), bodyHost, footer },
+            Children = { DsChrome.TitleBar(), DsChrome.StatusStrip("PKForge", AppLanguage.T("Offline")), bodyHost, footer },
         };
         Grid.SetRow((View)root.Children[1], 1);
         Grid.SetRow(bodyHost, 2);
@@ -636,7 +636,7 @@ public sealed partial class HomePage : ContentPage, IPadHandler
                 _ => "Save in game and close the emulator. Select its saves folder (or the folder containing your battery saves). Save states are not supported. Restart the game normally after editing.",
             };
             var proceed = await PadMenu.ShowAsync(_hostGrid, $"Link {choice}",
-                guidance + " If Android does not offer access to the folder, use Single save file with an exported save.",
+                AppLanguage.T(guidance) + AppLanguage.T(" If Android does not offer access to the folder, use Single save file with an exported save."),
                 choice == "Afterplay" ? new PadOption("Choose file", IconPath: "file") : new PadOption("Choose folder", IconPath: "folder"),
                 new PadOption("Back", IconPath: "back"));
             if (proceed == "Choose file") { await LinkFileAsync(); return; }
@@ -672,6 +672,7 @@ public sealed partial class HomePage : ContentPage, IPadHandler
     private const string WidgetsSection = "Home-screen widgets";
     private const string EditingSection = "Editing and safety";
     private const string HelpSection = "Help and about";
+    private const string LanguageSection = "Language / Idioma";
 
     private async Task ShowSettingsAsync()
     {
@@ -686,6 +687,7 @@ public sealed partial class HomePage : ContentPage, IPadHandler
                     ? $"Emulators, files, {hidden} hidden {(hidden == 1 ? "save" : "saves")}"
                     : "Emulators, files, rescan"),
                 new(LookSection, IconPath: "palette", Detail: "Colors, animations, music"),
+                new(LanguageSection, IconPath: "info", Detail: $"English / Español · {AppLanguage.DisplayName}"),
                 // Its own row, one press from Home: the widgets live outside PKForge, so nothing inside points at them.
                 new(WidgetsSection, IconPath: "park", Detail: "Living park, Pokéwalker, partner, egg"),
                 new(EditingSection, IconPath: "history", Detail: "Restore points and modes"),
@@ -699,6 +701,7 @@ public sealed partial class HomePage : ContentPage, IPadHandler
             {
                 GamesSection => await ShowGamesSettingsAsync(),
                 LookSection => await ShowLookSettingsAsync(),
+                LanguageSection => await ShowLanguageAsync(),
                 WidgetsSection => await StayAsync(() => WidgetMenu.ShowAsync(_hostGrid, HomeWidgetTab.Pokepark)),
                 EditingSection => await ShowEditingSettingsAsync(),
                 HelpSection => await ShowHelpSettingsAsync(),
@@ -706,6 +709,27 @@ public sealed partial class HomePage : ContentPage, IPadHandler
             };
             if (!stay) return;
         }
+    }
+
+    private async Task<bool> ShowLanguageAsync()
+    {
+        // Menu selection values remain English/native, so switching display language
+        // cannot change any command identifiers or game/save data.
+        var choice = await PadMenu.ShowAsync(_hostGrid, "Language / Idioma",
+            "Choose the language for menus, help and warnings. Untranslated text will remain in English.",
+            new PadOption("English", IconPath: "info", Detail: "Original language"),
+            new PadOption("Español", IconPath: "info", Detail: "Spanish (in progress)"),
+            new PadOption("Cancel", IconPath: "close"));
+        var next = choice switch
+        {
+            "English" => "en",
+            "Español" => "es",
+            _ => null,
+        };
+        if (next is null || !AppLanguage.Set(next)) return true;
+        if (Application.Current is App app) await app.ReloadForThemeAsync();
+        // Reload creates a new Home; never show another menu on the old host.
+        return false;
     }
 
     private async Task<bool> QuitAsync()

@@ -20,6 +20,7 @@ public sealed class DialogueChoiceBox : IPadHandler
     private readonly Label[] _labels;
     private readonly BoxView[] _cursors;
     private readonly string _text;
+    private readonly string[] _choices;
     private readonly IDispatcherTimer _typer;
     private int _index;
     private int _charIndex;
@@ -31,7 +32,8 @@ public sealed class DialogueChoiceBox : IPadHandler
     private DialogueChoiceBox(Grid host, string message, string[] choices)
     {
         _host = host;
-        _text = message;
+        _text = AppLanguage.T(message);
+        _choices = choices;
         _router = IPlatformApplication.Current?.Services.GetService<GamepadRouter>();
         _labels = new Label[choices.Length];
         _cursors = new BoxView[choices.Length];
@@ -51,7 +53,7 @@ public sealed class DialogueChoiceBox : IPadHandler
             var index = i;
             _labels[i] = new Label
             {
-                Text = choices[i],
+                Text = AppLanguage.T(choices[i]),
                 FontFamily = DsChrome.PixelFont,
                 FontSize = 15,
                 TextColor = UiTokens.Ink0,
@@ -95,7 +97,7 @@ public sealed class DialogueChoiceBox : IPadHandler
             StrokeShape = new RoundRectangle { CornerRadius = UiTokens.PanelRadius },
             Shadow = Kit.HardShadow(),
             Padding = new Thickness(10, 7),
-            WidthRequest = Math.Max(160, choices.Max(c => c.Length) * 11 + 44),
+            WidthRequest = Math.Max(160, choices.Max(c => AppLanguage.T(c).Length) * 11 + 44),
             HorizontalOptions = LayoutOptions.End,
             VerticalOptions = LayoutOptions.End,
             Margin = new Thickness(18, 0, 18, 126),
@@ -167,7 +169,7 @@ public sealed class DialogueChoiceBox : IPadHandler
                 Highlight();
                 return true;
             case PadButton.A:
-                Close(_labels[_index].Text!);
+                Close(_choices[_index]);
                 return true;
             case PadButton.B:
                 Close(null);
