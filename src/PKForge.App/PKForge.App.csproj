@@ -14,6 +14,12 @@
     <ApplicationDisplayVersion>3.2.0</ApplicationDisplayVersion>
     <RuntimeIdentifiers>android-arm64</RuntimeIdentifiers>
   </PropertyGroup>
+  <!-- Community translation builds have their own package and never touch official app data. -->
+  <PropertyGroup Condition="'$(CommunityTranslation)' == 'true'">
+    <ApplicationId>org.pkforge.app.es</ApplicationId>
+    <ApplicationTitle>PKForge Español</ApplicationTitle>
+    <DefineConstants>$(DefineConstants);COMMUNITY_TRANSLATION</DefineConstants>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(DiagnosticBuild)' == 'true'">
     <!-- Diagnostic builds install beside production and cannot overwrite its app-private data. -->
     <ApplicationId>org.pkforge.app.debug</ApplicationId>
