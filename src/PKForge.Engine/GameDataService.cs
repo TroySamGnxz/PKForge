@@ -3,18 +3,31 @@ using PKHeX.Core;
 
 namespace PKForge.Engine;
 
-/// <summary>Exposes the pinned engine's English display-name tables to the UI.</summary>
+/// <summary>
+/// Localised display-name tables provided by PKHeX. Species, moves, items, abilities,
+/// natures and Poké Balls follow the selected UI language. Internal game data and all
+/// numeric identifiers stay untouched. The default/authoritative tables remain English.
+/// </summary>
 public sealed class GameDataService : IGameDataService
 {
-    private readonly GameStrings _strings = GameInfo.GetStrings("en");
+    private readonly GameStrings _english = GameInfo.GetStrings("en");
+    private readonly GameStrings _spanish = GameInfo.GetStrings("es");
     private IReadOnlyList<Domain.SpeciesFormFlags>? _formFlags;
 
-    public IReadOnlyList<string> SpeciesNames => _strings.specieslist;
-    public IReadOnlyList<string> MoveNames => _strings.movelist;
-    public IReadOnlyList<string> ItemNames => _strings.itemlist;
-    public IReadOnlyList<string> AbilityNames => _strings.abilitylist;
-    public IReadOnlyList<string> NatureNames => _strings.natures;
-    public IReadOnlyList<string> BallNames => _strings.balllist;
+    private static string _displayLanguage = "en";
+    public static string DisplayLanguage
+    {
+        get => System.Threading.Volatile.Read(ref _displayLanguage);
+        set => System.Threading.Volatile.Write(ref _displayLanguage, value == "es" ? "es" : "en");
+    }
+    private GameStrings Display => DisplayLanguage == "es" ? _spanish : _english;
+
+    public IReadOnlyList<string> SpeciesNames => Display.specieslist;
+    public IReadOnlyList<string> MoveNames => Display.movelist;
+    public IReadOnlyList<string> ItemNames => Display.itemlist;
+    public IReadOnlyList<string> AbilityNames => Display.abilitylist;
+    public IReadOnlyList<string> NatureNames => Display.natures;
+    public IReadOnlyList<string> BallNames => Display.balllist;
 
     public IReadOnlyList<Domain.SpeciesFormFlags> FormFlags => _formFlags ??= BuildFormFlags();
 
@@ -25,14 +38,14 @@ public sealed class GameDataService : IGameDataService
     /// </summary>
     private IReadOnlyList<Domain.SpeciesFormFlags> BuildFormFlags()
     {
-        var flags = new Domain.SpeciesFormFlags[_strings.specieslist.Length];
+        var flags = new Domain.SpeciesFormFlags[_english.specieslist.Length];
         Array.Fill(flags, new Domain.SpeciesFormFlags(false, false, false, false));
         var swsh = PersonalTable.SWSH;
         for (var id = 1; id < flags.Length; id++)
         {
-            if (_strings.specieslist[id].Length == 0)
+            if (_english.specieslist[id].Length == 0)
                 continue;
-            var forms = FormConverter.GetFormList((ushort)id, _strings.Types, _strings.forms, EntityContext.Gen9);
+            var forms = FormConverter.GetFormList((ushort)id, _english.Types, _english.forms, EntityContext.Gen9);
             var mega = FormInfo.HasMegaForm((ushort)id);
             var regional = false;
             foreach (var form in forms)

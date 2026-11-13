@@ -18,6 +18,7 @@ public static class AppLanguage
         if (language is not ("en" or "es")) return false;
         if (Current == language) return false;
         Preferences.Default.Set(Key, language);
+        PKForge.Engine.GameDataService.DisplayLanguage = language;
         return true;
     }
 

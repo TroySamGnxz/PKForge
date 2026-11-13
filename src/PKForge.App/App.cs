@@ -34,6 +34,9 @@ public sealed class App : Application
         Trace("App ctor");
         var ctorWatch = System.Diagnostics.Stopwatch.StartNew();
 
+        // The PKHeX name tables follow the persisted interface language from startup.
+        PKForge.Engine.GameDataService.DisplayLanguage = Services.AppLanguage.Current;
+
         // Every page reads its chrome colors when it is built, so the scheme comes first.
         Services.ColorThemeSetting.ApplyStored();
 
