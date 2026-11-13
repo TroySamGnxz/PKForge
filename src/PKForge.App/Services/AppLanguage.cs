@@ -62,6 +62,15 @@ public static class AppLanguage
             return "Vincular " + text["Link ".Length..];
         if (text.StartsWith("Unlink ", StringComparison.Ordinal))
             return "Desvincular " + text["Unlink ".Length..];
+        if (text.StartsWith("Receive into slot ", StringComparison.Ordinal)
+            && int.TryParse(text["Receive into slot ".Length..], out var slot)
+            && slot >= 1)
+            return "Recibir en el espacio " + slot;
+        if (text.StartsWith("Bank · Box ", StringComparison.Ordinal))
+            return "Banco · Caja " + text["Bank · Box ".Length..].Replace(" · slot ", " · espacio ");
+        if (text.StartsWith("Box ", StringComparison.Ordinal)
+            && int.TryParse(text["Box ".Length..], out var box) && box > 0)
+            return "Caja " + box;
         return text;
     }
 
@@ -1496,5 +1505,7 @@ public static class AppLanguage
         ["Taken, skipped"] = "Ocupados, omitidos",
         ["They fill the free slots from here on, then the next boxes. Taken slots are skipped."] = "Ocupa los espacios libres desde aquí y continúa en las cajas siguientes. Se omiten los ocupados.",
         ["There is no free slot from there on."] = "No hay espacios libres a partir de ese lugar.",
+        ["Page"] = "Página",
+        ["L / R or tap the text"] = "L/R o toca el texto",
     };
 }

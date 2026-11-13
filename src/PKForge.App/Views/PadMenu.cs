@@ -129,7 +129,8 @@ public sealed class PadMenu : IPadHandler
     private void OnPaint(object? sender, SKPaintSurfaceEventArgs args)
     {
         args.Surface.Canvas.Clear(SKColors.Transparent);
-        var scene = new PadMenuScene(_title, _message, _lines, _columns, _index, _scroll, _leave, _messagePage, (float)_focusTime.Elapsed.TotalSeconds);
+        var scene = new PadMenuScene(_title, _message, _lines, _columns, _index, _scroll, _leave, _messagePage,
+            (float)_focusTime.Elapsed.TotalSeconds, AppLanguage.T("Choose"), AppLanguage.T("Page"), AppLanguage.T("L / R or tap the text"));
         _hits = PadMenuPaint.Paint(args.Surface.Canvas, args.Info, scene, BoxBrowserPage.PixelTypeface());
         // The first paint learns how many rows fit; keep the cursor's row in view.
         if (KeepInView()) _canvas.InvalidateSurface();

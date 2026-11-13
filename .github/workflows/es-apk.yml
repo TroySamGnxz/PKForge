@@ -9,6 +9,11 @@ on:
 permissions:
   contents: read
 
+# Keep only the newest Spanish build when multiple translation commits are pushed.
+concurrency:
+  group: spanish-apk-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   spanish-apk:
     runs-on: ubuntu-latest

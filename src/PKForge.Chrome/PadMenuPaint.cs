@@ -17,7 +17,10 @@ public sealed record PadMenuScene(
     // A message longer than the screen is read in pages; this is the one shown.
     int MessagePage = 0,
     // Seconds elapsed since the current choice was focused; drives overflow text scrolling.
-    float FocusSeconds = 0f);
+    float FocusSeconds = 0f,
+    string ChooseCaption = "Choose",
+    string PageCaption = "Page",
+    string PageHint = "L / R or tap the text");
 
 public sealed record PadMenuHits(SKRect Panel, IReadOnlyList<(int Index, SKRect Rect)> Lines, int VisibleRows, SKRect Choose, SKRect Leave,
     int MessagePages = 1, SKRect Message = default);
@@ -103,7 +106,7 @@ public static class PadMenuPaint
         {
             // Which page, and that there is more: a slanted tag with carets, as the list's own.
             y = panel.Top + BannerHeight + Pad - 6f + fitLines * 40f + 4f;
-            var tag = $"Page {page + 1} / {pages}";
+            var tag = $"{scene.PageCaption} {page + 1} / {pages}";
             var tw = detail.MeasureFallback(tag) + 120f;
             var plate = SKRect.Create(panel.Right - Pad - tw, y, tw, 38f);
             using (var path = Parallelogram(plate, 10f))
@@ -115,7 +118,7 @@ public static class PadMenuPaint
             Centered(c, tag, plate.MidX, plate.MidY, detail, T.Value);
             if (page > 0) Arrow(c, plate.Left + 30f, plate.MidY, -1, T.Rim);
             if (page < pages - 1) Arrow(c, plate.Right - 30f, plate.MidY, 1, T.Rim);
-            Text(c, "L / R or tap the text", panel.Left + Pad + 6f, plate.MidY, detail, T.SubInk, inner - tw - 30f);
+            Text(c, scene.PageHint, panel.Left + Pad + 6f, plate.MidY, detail, T.SubInk, inner - tw - 30f);
             y += 44f;
         }
         if (message.Count > 0) y += 18f;
@@ -172,7 +175,7 @@ public static class PadMenuPaint
 
         // The two buttons at the foot.
         var foot = new SKRect(panel.Left + Pad, panel.Bottom - FootHeight, panel.Right - Pad, panel.Bottom - 16f);
-        var choose = Key(c, "A", "Choose", foot.Left, foot.MidY, detail, body);
+        var choose = Key(c, "A", scene.ChooseCaption, foot.Left, foot.MidY, detail, body);
         var leave = Key(c, "B", scene.Leave, choose.Right + 40f, foot.MidY, detail, body);
 
         c.Restore();
