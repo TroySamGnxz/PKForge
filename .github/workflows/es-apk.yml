@@ -38,13 +38,50 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore PKForge.sln
 
-      - name: Build standalone Spanish APK
+      # Cache is private to the translation branch and preserves the certificate
+      # across ordinary workflow runs. The encrypted recovery artifact is the
+      # durable backup if GitHub expires its cache.
+      - name: Restore community signing identity
+        uses: actions/cache@v4
+        with:
+          path: .signing
+          key: pkforge-es-signing-v1
+
+      - name: Provision one signing identity
+        shell: bash
         run: |
+          mkdir -p .signing
+          if [ ! -s .signing/pkforge-es.keystore ] || [ ! -s .signing/password.txt ]; then
+            password="$(openssl rand -hex 32)"
+            printf '%s' "$password" > .signing/password.txt
+            keytool -genkeypair -noprompt -alias pkforge-es \
+              -keyalg RSA -keysize 3072 -validity 9000 \
+              -dname "CN=PKForge Spanish Community,O=Independent Translation,C=PY" \
+              -keystore .signing/pkforge-es.keystore \
+              -storepass "$password" -keypass "$password"
+            echo "New isolated translation signing certificate created"
+          else
+            echo "Reusing the existing translation signing certificate"
+          fi
+          keytool -list -v -keystore .signing/pkforge-es.keystore \
+            -storepass "$(cat .signing/password.txt)" | grep -F 'SHA256:' | head -1
+
+      - name: Build signed Spanish APK
+        shell: bash
+        run: |
+          version=$((320 + GITHUB_RUN_NUMBER))
           dotnet build src/PKForge.App/PKForge.App.csproj \
             --no-restore --configuration Debug \
             -f net10.0-android \
             -p:CommunityTranslation=true \
-            -p:AndroidKeyStore=false
+            -p:ApplicationVersion="$version" \
+            -p:ApplicationDisplayVersion="3.2.0-es.${GITHUB_RUN_NUMBER}" \
+            -p:AndroidPackageFormats=apk \
+            -p:AndroidKeyStore=true \
+            -p:AndroidSigningKeyStore="$GITHUB_WORKSPACE/.signing/pkforge-es.keystore" \
+            -p:AndroidSigningKeyAlias=pkforge-es \
+            -p:AndroidSigningKeyPass="file:$GITHUB_WORKSPACE/.signing/password.txt" \
+            -p:AndroidSigningStorePass="file:$GITHUB_WORKSPACE/.signing/password.txt"
 
       - name: Locate APK
         run: |
@@ -59,8 +96,33 @@ jobs:
           python3 -c 'import zipfile; p="output/PKForge-ES-prueba.apk"; z=zipfile.ZipFile(p); names=set(z.namelist()); assert {"AndroidManifest.xml","classes.dex","lib/arm64-v8a/libxamarin-app.so"}.issubset(names), "Missing Android APK components"; print("APK entries:", len(names))'
           test "$(stat -c %s output/PKForge-ES-prueba.apk)" -gt 1000000
 
+      # Never upload unencrypted signing keys to this public repository.
+      # The recovery bundle is encrypted to a public RSA key. Its private
+      # counterpart is stored only in the user's ChatGPT recovery package.
+      - name: Encrypt signing-key recovery files
+        shell: bash
+        run: |
+          tar -czf "$RUNNER_TEMP/signing.tar.gz" -C .signing pkforge-es.keystore password.txt
+          openssl rand -hex 32 > "$RUNNER_TEMP/recovery-password"
+          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt \
+            -in "$RUNNER_TEMP/signing.tar.gz" -out output/signing-backup.aes \
+            -pass file:"$RUNNER_TEMP/recovery-password"
+          openssl pkeyutl -encrypt -pubin \
+            -inkey .github/PKForge-ES-backup-public.pem \
+            -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 \
+            -in "$RUNNER_TEMP/recovery-password" -out output/signing-password.rsa
+          rm -f "$RUNNER_TEMP/signing.tar.gz" "$RUNNER_TEMP/recovery-password"
+
       - uses: actions/upload-artifact@v4
         with:
           name: PKForge-ES-APK
           path: output/PKForge-ES-prueba.apk
+          retention-days: 7
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PKForge-ES-SIGNING-BACKUP
+          path: |
+            output/signing-backup.aes
+            output/signing-password.rsa
           retention-days: 7
