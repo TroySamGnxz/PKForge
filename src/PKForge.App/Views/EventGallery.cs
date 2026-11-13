@@ -1423,7 +1423,7 @@ public static class EventGallery
             {
                 if (y > panel.Bottom - 6) return;
                 Text(c, label, left, y + 11, SKTextAlign.Left, body, soft);
-                Text(c, Fit(body, value, right - left - 62), left + 62, y + 11, SKTextAlign.Left, body, ink);
+                Text(c, Fit(body, label is "Ball" or "Item" ? AppLanguage.GameTerm(value) : value, right - left - 62), left + 62, y + 11, SKTextAlign.Left, body, ink);
                 y += 18;
             }
 
@@ -1436,7 +1436,7 @@ public static class EventGallery
                     var box = new SKRect(left, y - 2, left + 18, y + 16);
                     if (ItemIcons.Get(item.Name, Repaint) is { } icon) c.DrawImage(ImageOf(icon), box, Pixel);
                     else DrawPresent(c, box, 18);
-                    Text(c, Fit(body, item.Name, right - left - 70), left + 24, y + 11, SKTextAlign.Left, body, ink);
+                    Text(c, Fit(body, AppLanguage.GameTerm(item.Name), right - left - 70), left + 24, y + 11, SKTextAlign.Left, body, ink);
                     Text(c, $"x{item.Quantity}", right, y + 11, SKTextAlign.Right, body, soft);
                     y += 20;
                 }
@@ -1468,7 +1468,7 @@ public static class EventGallery
                     var r = new SKRect(left + col * (colW + 6), y, left + col * (colW + 6) + colW, y + 20);
                     if (r.Bottom > panel.Bottom - 4) break;
                     PksmPaint.BlackButton(c, r, 4);
-                    Text(c, Fit(body, d.Moves[i], colW - 10), r.MidX, r.MidY + body.Size * 0.36f, SKTextAlign.Center, body, ink);
+                    Text(c, Fit(body, AppLanguage.GameTerm(d.Moves[i]), colW - 10), r.MidX, r.MidY + body.Size * 0.36f, SKTextAlign.Center, body, ink);
                     if (col == 1 || i == d.Moves.Count - 1) y += 24;
                 }
             }

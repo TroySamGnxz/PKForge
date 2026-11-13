@@ -1,3 +1,5 @@
+using PKHeX.Core;
+
 namespace PKForge.App.Services;
 
 /// <summary>
@@ -82,6 +84,39 @@ public static class AppLanguage
             && text.EndsWith(")", StringComparison.Ordinal)
             && int.TryParse(text.AsSpan(prefix.Length, text.Length - prefix.Length - 1), out number)
             && number >= 0;
+    }
+
+    // Translate actual game terms by their canonical numeric slot. This is only
+    // used when drawing known game-data fields; never touch nicknames, imported
+    // save contents, event trainer names or identifiers.
+    private static readonly Lazy<Dictionary<string, string>> OfficialGameTerms = new(() =>
+    {
+        var en = GameInfo.GetStrings("en");
+        var es = GameInfo.GetStrings("es");
+        var result = new Dictionary<string, string>(StringComparer.Ordinal);
+        void Add(IReadOnlyList<string> english, IReadOnlyList<string> spanish)
+        {
+            for (var i = 0; i < Math.Min(english.Count, spanish.Count); i++)
+                if (!string.IsNullOrWhiteSpace(english[i]) && !string.IsNullOrWhiteSpace(spanish[i])
+                    && !string.Equals(english[i], spanish[i], StringComparison.Ordinal))
+                    result.TryAdd(english[i], spanish[i]);
+        }
+        Add(en.specieslist, es.specieslist);
+        Add(en.movelist, es.movelist);
+        Add(en.itemlist, es.itemlist);
+        Add(en.abilitylist, es.abilitylist);
+        Add(en.types, es.types);
+        Add(en.natures, es.natures);
+        Add(en.balllist, es.balllist);
+        return result;
+    });
+
+    /// <summary>Display an official term from the game tables, not arbitrary user text.</summary>
+    public static string GameTerm(string? text)
+    {
+        if (string.IsNullOrEmpty(text) || !IsSpanish) return text ?? string.Empty;
+        if (Spanish.TryGetValue(text, out var ui)) return ui;
+        return OfficialGameTerms.Value.TryGetValue(text, out var official) ? official : text;
     }
 
     private static readonly Dictionary<string, string> Spanish = new(StringComparer.Ordinal)
