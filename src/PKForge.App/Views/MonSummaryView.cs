@@ -552,7 +552,7 @@ public sealed class MonSummaryView : ContentView
             var stat = RadarOrder[i];
             var label = Point(i, radius + 58);
             var tone = up == stat ? Raised : down == stat ? Lowered : ValueInk;
-            SummaryInk.Draw(c, StatCaps[stat], label.X, SummaryInk.Center(label.Y - 16, 30), 30, tone, align: SKTextAlign.Center);
+            SummaryInk.Draw(c, AppLanguage.T(StatCaps[stat]), label.X, SummaryInk.Center(label.Y - 16, 30), 30, tone, align: SKTextAlign.Center);
             SummaryInk.Draw(c, s.Stats[stat].ToString(), label.X, SummaryInk.Center(label.Y + 15, 30), 30, Pksm.Ink, align: SKTextAlign.Center);
         }
     }
@@ -574,7 +574,7 @@ public sealed class MonSummaryView : ContentView
             var y = top + 194 + i * 96;
             using var band = new SKPaint { Color = i == 0 ? CardRow : CardFill };
             c.DrawRect(new SKRect(27, y, 587, y + 92), band);
-            SummaryInk.Draw(c, rows[i].Label, 60, SummaryInk.Center(y + 46, 40), 40, LabelInk);
+            SummaryInk.Draw(c, AppLanguage.T(rows[i].Label), 60, SummaryInk.Center(y + 46, 40), 40, LabelInk);
             SummaryInk.Draw(c, SummaryInk.Fit(rows[i].Value, 40, 360), 560, SummaryInk.Center(y + 46, 40), 40, ValueInk, align: SKTextAlign.Right);
         }
         using (var rim = new SKPaint { Color = CardEdge, IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 3 })
@@ -686,7 +686,7 @@ public sealed class MonSummaryView : ContentView
     private static Block Divider(string title) => (c, y, right) =>
     {
         if (c is not null)
-            EditorPaint.PaintSection(c, new SKRect(PX0 - 18, y, right + 18, y + 96), title, PixelFont.Face, 34f / 30f);
+            EditorPaint.PaintSection(c, new SKRect(PX0 - 18, y, right + 18, y + 96), AppLanguage.T(title), PixelFont.Face, 34f / 30f);
         return 96;
     };
 
@@ -704,7 +704,7 @@ public sealed class MonSummaryView : ContentView
         // A long caption ("Hidden Power") shrinks a little before it is cut.
         var labelSize = 38f;
         while (labelSize > 30 && SummaryInk.Width(label, labelSize) > LabelColumnRight - LabelX - 6) labelSize -= 2;
-        SummaryInk.Draw(c, SummaryInk.Fit(label, labelSize, LabelColumnRight - LabelX - 6), LabelX, SummaryInk.Center(valueY, labelSize), labelSize, LabelInk);
+        SummaryInk.Draw(c, SummaryInk.Fit(AppLanguage.T(label), labelSize, LabelColumnRight - LabelX - 6), LabelX, SummaryInk.Center(valueY, labelSize), labelSize, LabelInk);
         if (art is not null) art(c, ValueX, valueY);
         else SummaryInk.Draw(c, SummaryInk.Fit(value, 38, right - ValueX - 8), ValueX, SummaryInk.Center(valueY, 38), 38, tone ?? ValueInk);
         for (var i = 0; i < details.Count; i++)
@@ -729,7 +729,7 @@ public sealed class MonSummaryView : ContentView
     {
         if (c is null) return 150;
         var mid = (PX0 + right) / 2;
-        SummaryInk.Draw(c, title, mid, SummaryInk.Center(y + 56, 64), 64, tone, align: SKTextAlign.Center);
+        SummaryInk.Draw(c, AppLanguage.T(title), mid, SummaryInk.Center(y + 56, 64), 64, tone, align: SKTextAlign.Center);
         SummaryInk.Draw(c, SummaryInk.Fit(detail, 30, right - PX0 - 20), mid, SummaryInk.Center(y + 116, 30), 30, ValueInk, align: SKTextAlign.Center);
         return 150;
     };
@@ -798,7 +798,7 @@ public sealed class MonSummaryView : ContentView
         {
             var drawn = DrawBall(canvas, s.Ball, new SKRect(x, cy - 20, x + 40, cy + 20));
             var textX = drawn ? x + 54 : x;
-            SummaryInk.Draw(canvas, s.BallName, textX, SummaryInk.Center(cy, 38), 38, ValueInk);
+            SummaryInk.Draw(canvas, AppLanguage.GameTerm(s.BallName), textX, SummaryInk.Center(cy, 38), 38, ValueInk);
         }));
         if (!s.IsEgg) blocks.Add(Row("Friendship", $"{s.Friendship} / 255", FriendshipLine(s.Friendship)));
         if (s.Pokerus is { } rus)
@@ -862,7 +862,7 @@ public sealed class MonSummaryView : ContentView
                     if (c is null) return 84;
                     var mid = y + 42;
                     var tone = up == stat ? Raised : down == stat ? Lowered : LabelInk;
-                    SummaryInk.Draw(c, StatCaps[stat], LabelX, SummaryInk.Center(mid, 40), 40, tone);
+                    SummaryInk.Draw(c, AppLanguage.T(StatCaps[stat]), LabelX, SummaryInk.Center(mid, 40), 40, tone);
                     SummaryInk.Draw(c, s.Stats[stat].ToString(), StatColumn, SummaryInk.Center(mid, 40), 40, ValueInk, align: SKTextAlign.Center);
                     var baseValue = stat < s.BaseStats.Count ? s.BaseStats[stat] : 0;
                     var iv = stat < s.IVs.Count ? s.IVs[stat] : 0;
@@ -927,7 +927,7 @@ public sealed class MonSummaryView : ContentView
         if (c is null) return height;
         TypePlates.Paint(c, new SKRect(36, y + 18, 186, y + 66), move.Type);
         CategoryPlate(c, new SKRect(198, y + 18, 298, y + 66), move.Category);
-        SummaryInk.Draw(c, SummaryInk.Fit(move.Name, 40, right - 316 - 8), 316, SummaryInk.Center(y + 42, 40), 40, Pksm.Ink);
+        SummaryInk.Draw(c, SummaryInk.Fit(AppLanguage.GameTerm(move.Name), 40, right - 316 - 8), 316, SummaryInk.Center(y + 42, 40), 40, Pksm.Ink);
         var low = move.MaxPP > 0 && move.PP * 4 <= move.MaxPP;
         var pp = move.PPUps > 0 ? $"PP {move.PP}/{move.MaxPP} +{move.PPUps}" : $"PP {move.PP}/{move.MaxPP}";
         var ppWidth = SummaryInk.Draw(c, pp, right - 12, SummaryInk.Center(y + 100, 32), 32, low ? Orange : ValueInk, align: SKTextAlign.Right);

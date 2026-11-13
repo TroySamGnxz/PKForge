@@ -10,7 +10,12 @@ namespace PKForge.App.Services;
 public static class AppLanguage
 {
     private const string Key = "ui_language";
-    public static string Current => Preferences.Default.Get(Key, "en") == "es" ? "es" : "en";
+#if COMMUNITY_TRANSLATION
+    private const string DefaultLanguage = "es";
+#else
+    private const string DefaultLanguage = "en";
+#endif
+    public static string Current => Preferences.Default.Get(Key, DefaultLanguage) == "es" ? "es" : "en";
     public static bool IsSpanish => Current == "es";
     public static string DisplayName => IsSpanish ? "Español" : "English";
 
@@ -1605,5 +1610,13 @@ public static class AppLanguage
         ["Regional"] = "Regional",
         ["Forms"] = "Formas",
         ["Gen"] = "Generación",
+        ["Atk"] = "Atq.",
+        ["Def"] = "Def.",
+        ["SpA"] = "At. Esp.",
+        ["SpD"] = "Def. Esp.",
+        ["Spe"] = "Vel.",
+        ["Egg"] = "Huevo",
+        ["IVs"] = "IV",
+        ["EVs"] = "EV",
     };
 }
