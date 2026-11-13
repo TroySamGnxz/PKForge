@@ -18,7 +18,15 @@ public sealed class GameDataService : IGameDataService
     public static string DisplayLanguage
     {
         get => System.Threading.Volatile.Read(ref _displayLanguage);
-        set => System.Threading.Volatile.Write(ref _displayLanguage, value == "es" ? "es" : "en");
+        set
+        {
+            var language = value == "es" ? "es" : "en";
+            System.Threading.Volatile.Write(ref _displayLanguage, language);
+            PKForge.Domain.DexFacts.DisplayLanguage = language;
+            // PKHeX uses this resource for locations, ribbons and game names.
+            // These are display strings only; save structures and IDs do not change.
+            GameInfo.Strings = GameInfo.GetStrings(language);
+        }
     }
     private GameStrings Display => DisplayLanguage == "es" ? _spanish : _english;
 

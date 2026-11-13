@@ -100,9 +100,17 @@ public sealed class DexFactsTable
 /// <summary>The embedded <see cref="DexFactsTable"/>, loaded once on first use.</summary>
 public static class DexFacts
 {
-    private static readonly Lazy<DexFactsTable> Table = new(Load);
+    private static readonly Lazy<DexFactsTable> English = new(() => Load("PKForge.Domain.dexfacts.tsv.gz"));
+    private static readonly Lazy<DexFactsTable> Spanish = new(() => LoadSpanish());
 
-    public static DexFactsTable Default => Table.Value;
+    private static string _displayLanguage = "en";
+    public static string DisplayLanguage
+    {
+        get => System.Threading.Volatile.Read(ref _displayLanguage);
+        set => System.Threading.Volatile.Write(ref _displayLanguage, value == "es" ? "es" : "en");
+    }
+
+    public static DexFactsTable Default => DisplayLanguage == "es" ? Spanish.Value : English.Value;
 
     public static MoveFact? Move(int id) => Default.Move(id);
     public static string? Ability(int id) => Default.Ability(id);
@@ -119,10 +127,18 @@ public static class DexFacts
         return sb.ToString();
     }
 
-    private static DexFactsTable Load()
+    private static DexFactsTable LoadSpanish()
     {
-        using var stream = typeof(DexFacts).Assembly.GetManifestResourceStream("PKForge.Domain.dexfacts.tsv.gz")
-            ?? throw new InvalidOperationException("dexfacts.tsv.gz is not embedded");
+        const string resource = "PKForge.Domain.dexfacts.es.tsv.gz";
+        if (typeof(DexFacts).Assembly.GetManifestResourceInfo(resource) is null)
+            return English.Value; // Ordinary source builds without the optional Spanish resource.
+        return Load(resource);
+    }
+
+    private static DexFactsTable Load(string resource)
+    {
+        using var stream = typeof(DexFacts).Assembly.GetManifestResourceStream(resource)
+            ?? throw new InvalidOperationException(resource + " is not embedded");
         return DexFactsTable.Parse(stream);
     }
 }
