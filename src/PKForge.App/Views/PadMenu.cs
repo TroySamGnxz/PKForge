@@ -40,6 +40,7 @@ public sealed class PadMenu : IPadHandler
     private int _index;
     private int _scroll;
     private int _messagePage;
+    private readonly System.Diagnostics.Stopwatch _focusTime = System.Diagnostics.Stopwatch.StartNew();
     private bool _closed;
 
     /// <summary>Shows the menu inside <paramref name="host"/> (a page's root grid) and returns the chosen option or null.</summary>
@@ -87,6 +88,15 @@ public sealed class PadMenu : IPadHandler
         _canvas.Touch += OnTouch;
         _overlay = Kit.AttachOverlay(host, _canvas);
         _router?.Push(this);
+        // In translated menus some descriptions are wider than the tab. Animate
+        // only when a label/detail may overflow; no global rendering timer.
+        if (_lines.Any(line => line.Label.Length > 24 || line.Detail is { Length: > 32 }))
+            _canvas.Dispatcher.StartTimer(TimeSpan.FromMilliseconds(90), () =>
+            {
+                if (_closed) return false;
+                _canvas.InvalidateSurface();
+                return true;
+            });
         PerfTrace.Log($"menu.open[{options.Length}]", watch);
         PerfTrace.UntilIdle($"menu.open[{options.Length}]", host.Dispatcher);
     }
@@ -119,7 +129,7 @@ public sealed class PadMenu : IPadHandler
     private void OnPaint(object? sender, SKPaintSurfaceEventArgs args)
     {
         args.Surface.Canvas.Clear(SKColors.Transparent);
-        var scene = new PadMenuScene(_title, _message, _lines, _columns, _index, _scroll, _leave, _messagePage);
+        var scene = new PadMenuScene(_title, _message, _lines, _columns, _index, _scroll, _leave, _messagePage, (float)_focusTime.Elapsed.TotalSeconds);
         _hits = PadMenuPaint.Paint(args.Surface.Canvas, args.Info, scene, BoxBrowserPage.PixelTypeface());
         // The first paint learns how many rows fit; keep the cursor's row in view.
         if (KeepInView()) _canvas.InvalidateSurface();
@@ -176,7 +186,9 @@ public sealed class PadMenu : IPadHandler
     private void Highlight(int index)
     {
         if (_options.Length == 0) return;
-        _index = Math.Clamp(index, 0, _options.Length - 1);
+        var next = Math.Clamp(index, 0, _options.Length - 1);
+        if (next != _index) _focusTime.Restart();
+        _index = next;
         KeepInView();
         _canvas.InvalidateSurface();
     }

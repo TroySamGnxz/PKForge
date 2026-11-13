@@ -15,7 +15,9 @@ public sealed record PadMenuScene(
     int Scroll,
     string Leave,
     // A message longer than the screen is read in pages; this is the one shown.
-    int MessagePage = 0);
+    int MessagePage = 0,
+    // Seconds elapsed since the current choice was focused; drives overflow text scrolling.
+    float FocusSeconds = 0f);
 
 public sealed record PadMenuHits(SKRect Panel, IReadOnlyList<(int Index, SKRect Rect)> Lines, int VisibleRows, SKRect Choose, SKRect Leave,
     int MessagePages = 1, SKRect Message = default);
@@ -158,10 +160,10 @@ public static class PadMenuPaint
             var max = row.Right - 26f - left;
             if (item.Detail is { Length: > 0 } more)
             {
-                Text(c, item.Label, left, row.MidY - 17f, label, ink, max);
-                Text(c, more, left, row.MidY + 21f, detail, focused ? T.ChipInk.WithAlpha(210) : T.SubInk, max);
+                ChoiceText(c, item.Label, left, row.MidY - 17f, label, ink, max, focused, scene.FocusSeconds);
+                ChoiceText(c, more, left, row.MidY + 21f, detail, focused ? T.ChipInk.WithAlpha(210) : T.SubInk, max, focused, scene.FocusSeconds);
             }
-            else Text(c, item.Label, left, row.MidY, label, ink, max);
+            else ChoiceText(c, item.Label, left, row.MidY, label, ink, max, focused, scene.FocusSeconds);
         }
 
         // More above or below: a small arrow at the edge of the list.
@@ -176,6 +178,44 @@ public static class PadMenuPaint
         c.Restore();
         SKRect Up(SKRect r) => new(r.Left * unit, r.Top * unit, r.Right * unit, r.Bottom * unit);
         return new PadMenuHits(Up(panel), [.. hits.Select(h => (h.Item1, Up(h.Item2)))], visible, Up(choose), Up(leave), pages, Up(messageRect));
+    }
+
+    /// <summary>
+    /// Focused choice labels and descriptions that exceed their row automatically move
+    /// left to expose the hidden ending, pause, and slide back. Unfocused choices keep
+    /// the original ellipsis. Clipping prevents text from spilling into adjacent rows.
+    /// This only changes presentation and never changes the chosen menu value.
+    /// </summary>
+    private static void ChoiceText(SKCanvas c, string text, float x, float mid,
+        SKFont font, SKColor color, float maxWidth, bool focused, float elapsed)
+    {
+        if (maxWidth <= 0f) return;
+        var fullWidth = font.MeasureFallback(text);
+        if (!focused || fullWidth <= maxWidth)
+        {
+            Text(c, text, x, mid, font, color, maxWidth);
+            return;
+        }
+
+        var overflow = fullWidth - maxWidth + 10f;
+        const float pause = 0.85f;
+        const float pixelsPerSecond = 96f;
+        var travel = overflow / pixelsPerSecond;
+        var cycle = 2f * (travel + pause);
+        var t = elapsed % cycle;
+        float offset;
+        if (t < pause) offset = 0f;
+        else if (t < pause + travel) offset = (t - pause) * pixelsPerSecond;
+        else if (t < 2f * pause + travel) offset = overflow;
+        else offset = overflow - (t - 2f * pause - travel) * pixelsPerSecond;
+        offset = Math.Clamp(offset, 0f, overflow);
+
+        c.Save();
+        c.ClipRect(new SKRect(x, mid - font.Size * 0.85f,
+            x + maxWidth, mid + font.Size * 0.85f));
+        using var paint = new SKPaint { Color = color, IsAntialias = false };
+        c.DrawTextFallback(text, x - offset, Baseline(mid, font), SKTextAlign.Left, font, paint);
+        c.Restore();
     }
 
     private static void Caret(SKCanvas c, float cx, float cy, bool up)
