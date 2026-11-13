@@ -111,6 +111,16 @@ public static class AppLanguage
         return result;
     });
 
+    /// <summary>Searching works with Spanish or original English species names.</summary>
+    public static bool SpeciesMatches(int species, string localizedName, string query)
+    {
+        if (localizedName.Contains(query, StringComparison.OrdinalIgnoreCase)) return true;
+        if (!IsSpanish) return false;
+        var english = GameInfo.GetStrings("en").specieslist;
+        return (uint)species < (uint)english.Length
+            && english[species].Contains(query, StringComparison.OrdinalIgnoreCase);
+    }
+
     /// <summary>Display an official term from the game tables, not arbitrary user text.</summary>
     public static string GameTerm(string? text)
     {
@@ -1543,5 +1553,57 @@ public static class AppLanguage
         ["There is no free slot from there on."] = "No hay espacios libres a partir de ese lugar.",
         ["Page"] = "Página",
         ["L / R or tap the text"] = "L/R o toca el texto",
+        ["Search a Pokémon…"] = "Buscar Pokémon…",
+        ["Category"] = "Categoría",
+        ["Power"] = "Potencia",
+        ["Theme"] = "Estilo",
+        ["Any"] = "Cualquiera",
+        ["Clear"] = "Limpiar",
+        ["Types"] = "Tipos",
+        ["Region"] = "Región",
+        ["Base stats"] = "Estadísticas base",
+        ["Abilities"] = "Habilidades",
+        ["Hidden"] = "Oculta",
+        ["Slot 1"] = "Espacio 1",
+        ["Slot 2"] = "Espacio 2",
+        ["Genderless"] = "Sin sexo",
+        ["Always ♂"] = "Siempre macho",
+        ["Always ♀"] = "Siempre hembra",
+        ["HP"] = "PS",
+        ["Attack"] = "Ataque",
+        ["Defense"] = "Defensa",
+        ["Sp. Atk"] = "At. Esp.",
+        ["Sp. Def"] = "Def. Esp.",
+        ["Speed"] = "Velocidad",
+        ["Normal"] = "Normal",
+        ["Fighting"] = "Lucha",
+        ["Flying"] = "Volador",
+        ["Poison"] = "Veneno",
+        ["Ground"] = "Tierra",
+        ["Rock"] = "Roca",
+        ["Bug"] = "Bicho",
+        ["Ghost"] = "Fantasma",
+        ["Steel"] = "Acero",
+        ["Fire"] = "Fuego",
+        ["Water"] = "Agua",
+        ["Grass"] = "Planta",
+        ["Electric"] = "Eléctrico",
+        ["Psychic"] = "Psíquico",
+        ["Ice"] = "Hielo",
+        ["Dragon"] = "Dragón",
+        ["Dark"] = "Siniestro",
+        ["Fairy"] = "Hada",
+        ["Stellar"] = "Astral",
+        ["Physical"] = "Físico",
+        ["Special"] = "Especial",
+        ["Legendary"] = "Legendario",
+        ["Mythical"] = "Singular",
+        ["Ultra Beast"] = "Ultraente",
+        ["Paradox"] = "Paradoja",
+        ["Mega"] = "Mega",
+        ["Gigantamax"] = "Gigamax",
+        ["Regional"] = "Regional",
+        ["Forms"] = "Formas",
+        ["Gen"] = "Generación",
     };
 }

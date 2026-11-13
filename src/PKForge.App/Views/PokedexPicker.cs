@@ -215,7 +215,7 @@ public sealed class PokedexPicker : IPadHandler
 
         var search = new Entry
         {
-            Placeholder = "Search a Pokémon…",
+            Placeholder = AppLanguage.T("Search a Pokémon…"),
             FontSize = 14,
             TextColor = UiTokens.Ink0,
             PlaceholderColor = UiTokens.Ink1,
@@ -324,9 +324,9 @@ public sealed class PokedexPicker : IPadHandler
     private void RefreshCapsules()
     {
         if (_categoryLabel is null) return;
-        _categoryLabel.Text = $"Category: {_category}";
-        _powerLabel.Text = $"Power: {_power}";
-        _themeLabel.Text = $"Theme: {_theme}";
+        _categoryLabel.Text = AppLanguage.T("Category") + ": " + AppLanguage.T(_category);
+        _powerLabel.Text = AppLanguage.T("Power") + ": " + AppLanguage.T(_power);
+        _themeLabel.Text = AppLanguage.T("Theme") + ": " + AppLanguage.T(_theme);
     }
 
     private void RefreshChipStates()
@@ -440,7 +440,7 @@ public sealed class PokedexPicker : IPadHandler
         if (_typeFilters.Count > 0)
             source = source.Where(e => _typeFilters.All(t => e.Types.Contains(t)));
         if (!string.IsNullOrWhiteSpace(_query))
-            source = source.Where(e => e.Name.Contains(_query, StringComparison.OrdinalIgnoreCase));
+            source = source.Where(e => AppLanguage.SpeciesMatches(e.Id, e.Name, _query));
         if (_category != "Any")
             source = source.Where(e => MatchesCategory(e, _category));
         if (_power != "Any")

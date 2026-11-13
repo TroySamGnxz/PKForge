@@ -1,4 +1,5 @@
 using PKForge.Chrome;
+using PKForge.App.Services;
 using PKForge.Domain;
 using SkiaSharp;
 using SkiaSharp.Views.Maui;
@@ -19,7 +20,7 @@ internal static class TypePlates
     {
         if (!TypeFacts.IsValid(type) && type != TypeFacts.Stellar) return;
         var color = InfoKit.TypeColor(type).ToSKColor();
-        Paint(c, r, SummaryChrome.Lighter(color, 0.12f), SummaryChrome.Darker(color, 0.35f), TypeFacts.Name(type).ToUpperInvariant());
+        Paint(c, r, SummaryChrome.Lighter(color, 0.12f), SummaryChrome.Darker(color, 0.35f), AppLanguage.T(TypeFacts.Name(type)).ToUpperInvariant());
     }
 
     /// <summary>A plate in any colours (the move categories share one blue).</summary>
@@ -30,7 +31,7 @@ internal static class TypePlates
         using (var rim = new SKPaint { Color = dark, IsAntialias = true }) c.DrawRoundRect(r, radius, radius, rim);
         var inset = r.Height * 0.1f;
         using (var fill = new SKPaint { Color = light, IsAntialias = true }) c.DrawRoundRect(SKRect.Inflate(r, -inset, -inset), radius * 0.7f, radius * 0.7f, fill);
-        var text = SummaryInk.Fit(label, size, r.Width - inset * 2.4f);
+        var text = SummaryInk.Fit(AppLanguage.T(label), size, r.Width - inset * 2.4f);
         var baseline = SummaryInk.Center(r.MidY, size);
         var outline = size * 0.08f;
         foreach (var (dx, dy) in new[] { (-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (1, 1), (-1, 1), (1, -1) })

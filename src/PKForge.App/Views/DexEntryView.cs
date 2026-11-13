@@ -142,7 +142,7 @@ public sealed class DexEntryView : SKCanvasView
         {
             using var band = new SKPaint { Color = ColorTheme.Current.CardRow };
             c.DrawRect(new SKRect(27, cardTop + 194, 587, cardTop + 286), band);
-            SummaryInk.Draw(c, "Region", 60, SummaryInk.Center(cardTop + 240, 40), 40, LabelInk);
+            SummaryInk.Draw(c, AppLanguage.T("Region"), 60, SummaryInk.Center(cardTop + 240, 40), 40, LabelInk);
             SummaryInk.Draw(c, $"{region.Name} · Gen {region.Roman}", 560, SummaryInk.Center(cardTop + 240, 40), 40, ValueInk, align: SKTextAlign.Right);
         }
     }
@@ -159,13 +159,13 @@ public sealed class DexEntryView : SKCanvasView
 
         void Section(string title)
         {
-            EditorPaint.PaintSection(c, new SKRect(left - 18, y, right + 18, y + 96), title, PixelFont.Face, 34f / 30f);
+            EditorPaint.PaintSection(c, new SKRect(left - 18, y, right + 18, y + 96), AppLanguage.T(title), PixelFont.Face, 34f / 30f);
             y += 96;
         }
         void Row(string label, string value, SKColor? tone = null)
         {
             using (var column = new SKPaint { Color = LabelColumn }) c.DrawRect(new SKRect(LeftWidth + 4, y, LeftWidth + 252, y + 70), column);
-            SummaryInk.Draw(c, label, LeftWidth + 42, SummaryInk.Center(y + 36, 36), 36, LabelInk);
+            SummaryInk.Draw(c, AppLanguage.T(label), LeftWidth + 42, SummaryInk.Center(y + 36, 36), 36, LabelInk);
             SummaryInk.Draw(c, SummaryInk.Fit(value, 36, right - (LeftWidth + 282) - 8), LeftWidth + 282, SummaryInk.Center(y + 36, 36), 36, tone ?? ValueInk);
             y += 76;
         }
@@ -188,7 +188,7 @@ public sealed class DexEntryView : SKCanvasView
                 Row(ability.Slot == "Hidden" ? "Hidden" : $"Slot {ability.Slot}", name, ability.Slot == "Hidden" ? Pksm.ShinyGold : null);
             }
             if (card.Gender is { } gender && y <= height - 80)
-                SummaryInk.Draw(c, SummaryInk.Fit(gender.Label, 30, right - left - 20), (left + right) / 2, SummaryInk.Center(y + 30, 30), 30, SubInk, align: SKTextAlign.Center);
+                SummaryInk.Draw(c, SummaryInk.Fit(AppLanguage.T(gender.Label), 30, right - left - 20), (left + right) / 2, SummaryInk.Center(y + 30, 30), 30, SubInk, align: SKTextAlign.Center);
         }
     }
 }
