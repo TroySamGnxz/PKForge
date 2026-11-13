@@ -890,7 +890,7 @@ public static class BankEntryEditor
                 });
                 _caption = new Label
                 {
-                    Text = caption,
+                    Text = AppLanguage.T(caption),
                     FontFamily = Font,
                     FontSize = EditorRows.EditorText,
                     TextColor = EditorRows.EditorLabel,

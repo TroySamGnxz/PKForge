@@ -107,6 +107,7 @@ public static class EventGallery
     internal static string Fit(SKFont font, string text, float maxWidth)
     {
         if (maxWidth <= 0 || text.Length == 0) return "";
+        text = AppLanguage.T(text);
         font = For(font, text);
         if (font.MeasureText(text) <= maxWidth) return text;
         while (text.Length > 1 && font.MeasureText(text[..^1] + "…") > maxWidth)
@@ -135,12 +136,16 @@ public static class EventGallery
     }
 
     /// <summary>DrawText through <see cref="For"/>: the pixel face when it can, a fallback when it cannot.</summary>
-    private static void Text(SKCanvas canvas, string text, float x, float y, SKTextAlign align, SKFont font, SKPaint paint) =>
+    private static void Text(SKCanvas canvas, string text, float x, float y, SKTextAlign align, SKFont font, SKPaint paint)
+    {
+        text = AppLanguage.T(text);
         canvas.DrawText(text, x, y, align, For(font, text), paint);
+    }
 
     /// <summary>Greedy word wrap into at most <paramref name="maxLines"/>, ellipsized.</summary>
     private static List<string> Wrap(SKFont font, string text, float width, int maxLines)
     {
+        text = AppLanguage.T(text);
         font = For(font, text);
         var lines = new List<string>();
         var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);

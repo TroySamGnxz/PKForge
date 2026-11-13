@@ -245,8 +245,15 @@ public sealed class WidgetMenu : IPadHandler
         var rows = Rows();
         _row = Math.Clamp(_row, 0, Math.Max(0, rows.Count - 1));
         var caption = $"{Name(_tab)} · {SizeValue}";
-        var scene = new WidgetMenuScene(TabNames, (int)_tab, [.. rows.Select(r => r.Row)], _row,
-            _frames.Length == 0 ? null : _frames[_frame % _frames.Length], caption, _note.Length > 0 ? _note : Blurb(), _armed);
+        var translatedRows = rows.Select(r => r.Row with
+        {
+            Label = AppLanguage.T(r.Row.Label),
+            Value = AppLanguage.T(r.Row.Value),
+            Detail = AppLanguage.T(r.Row.Detail),
+        }).ToArray();
+        var scene = new WidgetMenuScene([.. TabNames.Select(AppLanguage.T)], (int)_tab, translatedRows, _row,
+            _frames.Length == 0 ? null : _frames[_frame % _frames.Length], AppLanguage.T(caption),
+            AppLanguage.T(_note.Length > 0 ? _note : Blurb()), _armed);
         _hits = WidgetMenuPaint.Paint(args.Surface.Canvas, args.Info, scene, BoxBrowserPage.PixelTypeface());
     }
 

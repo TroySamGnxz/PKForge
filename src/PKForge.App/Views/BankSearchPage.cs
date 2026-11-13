@@ -74,7 +74,7 @@ public sealed class BankSearchPage : IPadPagingHandler
         _router = IPlatformApplication.Current?.Services.GetService<GamepadRouter>();
         _all = [.. bank.GetAll()]; // the vault is an in-memory index; the snapshot is the scan
 
-        var title = new Label { Text = "Bank search", TextColor = UiTokens.Ink0, FontFamily = DsChrome.PixelFont, FontSize = 15 };
+        var title = new Label { Text = AppLanguage.T("Bank search"), TextColor = UiTokens.Ink0, FontFamily = DsChrome.PixelFont, FontSize = 15 };
         _count = new Label
         {
             TextColor = UiTokens.Ink1,
@@ -87,7 +87,7 @@ public sealed class BankSearchPage : IPadPagingHandler
 
         _text = new Entry
         {
-            Placeholder = "Name or nickname…",
+            Placeholder = AppLanguage.T("Name or nickname…"),
             PlaceholderColor = UiTokens.Ink1,
             TextColor = UiTokens.Ink0,
             BackgroundColor = UiTokens.ShellPress,

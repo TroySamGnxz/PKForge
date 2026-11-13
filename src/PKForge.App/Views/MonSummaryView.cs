@@ -133,7 +133,7 @@ public sealed class MonSummaryView : ContentView
         var has = summary is not null;
         if (_left.IsVisible != has) _left.IsVisible = _right.IsVisible = has;
         if (_empty.IsVisible == has) _empty.IsVisible = !has;
-        if (!has) _empty.Text = emptyText ?? "Empty slot";
+        if (!has) _empty.Text = AppLanguage.T(emptyText ?? "Empty slot");
         _left.InvalidateSurface();
         // The same mon with its verdict arriving keeps its scroll: only the verdict page repaints.
         if (!sameMon || _pageKind == SummaryPage.Legality) RefreshPage(resetScroll: !sameMon);
